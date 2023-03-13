@@ -17,11 +17,11 @@ class Grid():
         ### test for simple
         # self.grid = np.array([
         #     [None, None, None, 'O', 'O', 'O'],
-        #     [None, None, None, 'O', 'O', 'O'],
-        #     [None, None, None, 'O', 'O', 'O'],
-        #     ['O', 'O', 'O', 'O', 'O', 'O'],
-        #     ['O', 'O', 'O', 'O', 'O', 'O'],
-        #     ['O', 'O', 'O', 'O', 'O', 'O'],
+        #     [None, None, None, 'X', 'O', 'X'],
+        #     [None, None, None, 'O', 'X', 'O'],
+        #     ['O', 'X', 'O', 'X', 'O', 'X'],
+        #     ['X', 'O', 'X', 'O', 'X', 'O'],
+        #     ['O', 'X', 'O', 'X', 'O', 'X'],
         # ])
 
     def update(self, x, y, symbol):
