@@ -11,9 +11,10 @@ import random
 import numpy as np
 import os
 import psutil
+import time
 TIME_LIMIT=10
 
-class Node(object):
+class Node_Stacey(object):
     def __init__(self, state, player, parent = None, children = {}):
         self.state = state
         self.player = player
@@ -23,70 +24,53 @@ class Node(object):
         self.total = 0
         self.move_str = None
         self.expanded = False
-        # self.print_myself() ##
     def get_state(self):
         return self.state
     def get_player(self):
         return self.player
-    def print_myself(self):
-        print('\t Init Node: ', self, ' success: ', self.success, ' total: ', self.total, ' move_str ', self.move_str)
     
-class MCTS(object):
+class MCTS_Stacey(object):
     def __init__(self):
         self.root = None
         self.time_limit = 0
         self.constant = 1 / np.sqrt(2) ###
         self.player = None
         self.cur_player = None
-        # self.print_myself() ##
-    def print_myself(self):
-        print('\t Init MCTS:', self, ' root:', self.root)
 
-    def run(self, avail_moves):
-        for i in range(1000):
+    def run(self, state, avail_moves):
+        START_TIME = time.time()
+        while True:
+            if time.time() - START_TIME > self.time_limit - 1.3:
+                break
             move, node = self.select(self.root, avail_moves) # move is a string formatted as '[x, y]'
-            # print('print children twice')
-            # for n in list(self.root.children.values()):
-            #     print(n.move_str, n.state)
-            
-            # tmp_avail_moves = list(filter(lambda item: item[0] != int(node.move_str[1]) and item[1] != int(node.move_str[4]), avail_moves))
-            # print('tmp_avail_moves', tmp_avail_moves)
-            # print('node.move_str', node.move_str)
-            # print(node.state)
-            self.expand(node) # 这个node还没算成绩
-            # print(node.move_str, node.total, node.success)
-            # print('N, success_num', N, success_num)
-            
-            # print('child: ', str(move))
-            
-            # self.root.children[list(self.root.children.keys())[0]].total += N #$$$$$$$$$$
-            # self.root.children[str(move)].total += N
-            # self.root.children[str(move)].success += success_num
-            # print('str(move)', str(move))
-            # self.root.children[str(move)].print_myself()
-            # if '[1, 2]' == str(move):
-            #     print('after TES', self.root.children[str(move)].total, self.root.children[str(move)].success)
-            # print('EXPAND: N, success_num', N, success_num)
-            # self.backpropogate(N, success_num) #################################
+            self.expand(node) 
+        for c in list(self.root.children.values()):
+            print('c.success, c.total', c.success, c.total)
         keys = list(self.root.children.keys()) # move_str
         values = list(self.root.children.values()) # node
         best_move = str(avail_moves[0])
         best_rate = 0
         for i, child in enumerate(values):
-            # print("success rate", child.success / child.total)
+            if child.total == 0:
+                continue
             if best_rate < child.success / child.total:
                 best_rate = child.success / child.total
                 best_move = keys[i]
+        if self.root.children:
+            self.root = self.root.children[best_move]
+        else:
+            self.root = None
+            print('================================================')
         return [int(best_move[1]), int(best_move[4])]
 
-    def select(self, root: Node, avail_moves):
+    def select(self, root: Node_Stacey, avail_moves):
         if not root.expanded:
             for m in avail_moves:
                 tmp_state = copy.deepcopy(root.state)
                 tmp_state[m[0], m[1]] = self.cur_player
                 if root.children == None:
                     root.children = {}
-                root.children[str(m)] = Node(state=tmp_state, player=self.cur_player, parent=root, children=None) ##
+                root.children[str(m)] = Node_Stacey(state=tmp_state, player=self.cur_player, parent=root, children=None) ##
                 root.children[str(m)].move_str = str(m)
             root.expanded = True
 
@@ -94,43 +78,44 @@ class MCTS(object):
         return str(move), node
     
     def expand(self, node):
-        N = 0
-        success_num = 0
         my_score = 0
         oppo_score = 0
         self.cur_player = self.player
         
         # expand top to down
         while True: ###
-        # for i in range(6):
-            # print('player', self.cur_player)
-            self.cur_player = 'X' if self.cur_player == 'O' else 'O'
+            self.cur_player = 'X' if self.cur_player == 'O' else 'O' # switch player
             if list(np.array(node.state).reshape(1, -1)[0]).count(None) < 1: # termination
                 break
             avail_moves = self.available_cells(node.state, self.cur_player)
             avail_moves = self.my_available_cells(avail_moves, self.cur_player)
             move, node = self.select(node, avail_moves)
             score = self.alignement(node.state, int(node.move_str[1]), int(node.move_str[4]))
-            # print('avail_moves', avail_moves)
-            # print('node', node.move_str)
-            # print('node state', node.state)
-            # print('score', score)
             if self.cur_player == self.player:
                 my_score += score
             else:
                 oppo_score += score
         
+        # winner has extra 10 points
+        if my_score > oppo_score:
+            my_score += 10
+        elif my_score < oppo_score:
+            oppo_score += 10
+
+        # scale the scores
+        # my_score *= 0.01
+        # oppo_score *= 0.01
+
         # backpropogate down to up
         while True:
-            node.total += 1
+            # node.total += 1
+            node.total += max(my_score, oppo_score)
             if node.player == self.player and my_score > oppo_score or node.player != self.player and my_score < oppo_score: 
-                node.success += 1
+                # node.success += 1
+                node.success += max(my_score, oppo_score)
             if node == self.root:
                 break
             node = node.parent
-
-    def backpropogate(self, N, success_num):
-        pass
 
     def get_best_node(self, children: dict, constant: int): # UCT
         children = self.shuffle_dict(children)
@@ -141,7 +126,10 @@ class MCTS(object):
         best_move = moves[0]
         if N > 0:
             for i in range(len(children)):
-                u = nodes[i].success / (nodes[i].total + 1) + constant * np.sqrt(np.log(N) / (nodes[i].total + 1))
+                if N <= 2: # ===============================================================================================================================================
+                    u = -1
+                else:
+                    u = nodes[i].success / (nodes[i].total + 1) + constant * np.sqrt(np.log(N) / (nodes[i].total + 1))
                 if u > best_u:
                     best_u = u
                     best_move = moves[i]
@@ -195,7 +183,7 @@ class AIPlayer(object):
         self.symbole = symbole
         self.isAI = isAI
         self.score=0
-        self.mcts = MCTS()
+        self.mcts = MCTS_Stacey()
 
     def stat(self):
         return self.name + " won " + str(self.won_games) + " games, " + str(self.draw_games) + " draw."
@@ -225,54 +213,34 @@ class AIPlayer(object):
     def get_move(self,state,player):
 
         # player: 'O' or 'X'
+        START_TIME = time.time()
 
-        mem_before = psutil.Process(os.getpid()).memory_info().rss
+        # mem_before = psutil.Process(os.getpid()).memory_info().rss
 
-        # if self.mcts.root == None:
-        self.mcts.root = Node(state=state, player=player, parent=None, children={})
-        self.mcts.cur_player = player
-        self.mcts.player = player
-        self.mcts.time_limit = TIME_LIMIT # sec # haven't applied
+        found = False
+        if self.mcts.root != None:
+            for c in list(self.mcts.root.children.values()):
+                if np.array_equal(c.state, state):
+                    self.mcts.root = c
+                    found = True
+                    break
+        if not found:
+            self.mcts.root = Node_Stacey(state=state, player=player, parent=None, children={})
+            self.mcts.cur_player = player
+            self.mcts.player = player
+            self.mcts.time_limit = TIME_LIMIT # sec # haven't applied
 
-        avail_moves = self.available_cells(state,player) # available actions
-        avail_moves = self.my_available_cells(avail_moves, player)
+        avail_moves = self.available_cells(state,player) # empty coordinates
+        avail_moves = self.my_available_cells(avail_moves, player) # available actions
 
-        avail_moves = self.simple_strategy1(avail_moves, state, player)
         if len(avail_moves) == 1:
             return avail_moves[0]
 
-        if len(avail_moves) < 16:
-            move = self.mcts.run(avail_moves) # This is my turn
-            # move = random.choice(avail_moves)
-        else:
-            move = random.choice(avail_moves)
-
+        self.mcts.time_limit -= time.time() - START_TIME
+        move = self.mcts.run(state, avail_moves) # This is my turn
+        # move = random.choice(avail_moves)
         mem_after = psutil.Process(os.getpid()).memory_info().rss
-        print((mem_after - mem_before) / 1024**2, ' MB')
-
+        # assert (mem_after - mem_before) / 1024**2 < 160 # MB
+        # print((mem_after - mem_before) / 1024**2, 'MB')
         return move   
 
-    def simple_strategy1(self, avail_moves, state, player): 
-        # 如果自己三个棋已经有两个棋了，就先不下，避免对方得六分，但是对方可能会得三分
-        one_six_line = []
-        two_six_line = []
-        not_six_line = []
-        for move in avail_moves:
-            x = move[0]
-            y = move[1]
-            if list(state[x]).count(player) == 2 and list(state[y]).count(player) == 2:
-                two_six_line.append(move)
-            elif list(state[x]).count(player) == 2 or list(state[y]).count(player) == 2:
-                one_six_line.append(move)
-            else:
-                not_six_line.append(move)
-        # print(player)
-        # print(not_six_line)
-        # print(one_six_line)
-        # print(two_six_line)
-        if len(not_six_line) > 0:
-            return not_six_line
-        elif len(one_six_line) > 0:
-            return one_six_line
-        else:
-            return two_six_line
