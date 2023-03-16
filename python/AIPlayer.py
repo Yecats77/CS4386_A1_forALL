@@ -9,8 +9,6 @@ import copy
 from math import inf as infinity
 import random
 import numpy as np
-import os
-import psutil
 import time
 TIME_LIMIT=10
 
@@ -40,12 +38,12 @@ class MCTS_Stacey(object):
     def run(self, state, avail_moves):
         START_TIME = time.time()
         while True:
-            if time.time() - START_TIME > self.time_limit - 1.3:
+            if time.time() - START_TIME > self.time_limit - 2:
                 break
             move, node = self.select(self.root, avail_moves) # move is a string formatted as '[x, y]'
             self.expand(node) 
-        for c in list(self.root.children.values()):
-            print('c.success, c.total', c.success, c.total)
+        # for c in list(self.root.children.values()):
+        #     print('c.success, c.total', c.success, c.total)
         keys = list(self.root.children.keys()) # move_str
         values = list(self.root.children.values()) # node
         best_move = str(avail_moves[0])
@@ -107,12 +105,22 @@ class MCTS_Stacey(object):
         # oppo_score *= 0.01
 
         # backpropogate down to up
+        # while True:
+        #     # node.total += 1
+        #     node.total += max(my_score, oppo_score)
+        #     if node.player == self.player and my_score > oppo_score or node.player != self.player and my_score < oppo_score: 
+        #         # node.success += 1
+        #         node.success += max(my_score, oppo_score)
+        #     if node == self.root:
+        #         break
+        #     node = node.parent
+        
         while True:
-            # node.total += 1
-            node.total += max(my_score, oppo_score)
-            if node.player == self.player and my_score > oppo_score or node.player != self.player and my_score < oppo_score: 
-                # node.success += 1
-                node.success += max(my_score, oppo_score)
+            node.total += my_score + oppo_score
+            if node.player == self.player:
+                node.success += my_score
+            elif:
+                node.success += oppo_score
             if node == self.root:
                 break
             node = node.parent
@@ -215,8 +223,6 @@ class AIPlayer(object):
         # player: 'O' or 'X'
         START_TIME = time.time()
 
-        # mem_before = psutil.Process(os.getpid()).memory_info().rss
-
         found = False
         if self.mcts.root != None:
             for c in list(self.mcts.root.children.values()):
@@ -238,9 +244,5 @@ class AIPlayer(object):
 
         self.mcts.time_limit -= time.time() - START_TIME
         move = self.mcts.run(state, avail_moves) # This is my turn
-        # move = random.choice(avail_moves)
-        mem_after = psutil.Process(os.getpid()).memory_info().rss
-        # assert (mem_after - mem_before) / 1024**2 < 160 # MB
-        # print((mem_after - mem_before) / 1024**2, 'MB')
         return move   
 
