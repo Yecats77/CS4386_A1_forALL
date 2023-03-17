@@ -10,19 +10,9 @@ import ctypes as ct
 import sys
 import time
 TIME_LIMIT=10
-
 class Grid():
     def __init__(self):
         self.grid = np.full((6,6), None)
-        ### test for simple
-        # self.grid = np.array([
-        #     [None, None, None, 'O', 'O', 'O'],
-        #     [None, None, None, 'X', 'O', 'X'],
-        #     [None, None, None, 'O', 'X', 'O'],
-        #     ['O', 'X', 'O', 'X', 'O', 'X'],
-        #     ['X', 'O', 'X', 'O', 'X', 'O'],
-        #     ['O', 'X', 'O', 'X', 'O', 'X'],
-        # ])
 
     def update(self, x, y, symbol):
         if(self.grid[x][y] is None):
@@ -180,7 +170,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, chr(playerTurn.get_symbole())):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player1 wins.")
+                    print("Illegal move, game over. Player1 wins.")
                     return "-4"
                 grid.update(x, y, chr(playerTurn.get_symbole()))
                 gui.drawSymbole(screen, (x,y), chr(playerTurn.get_symbole()))
@@ -201,7 +191,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player1 wins.")
+                    print("Illegal move, game over. Player1 wins.")
                     return "-4"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x,y), playerTurn.get_symbole())
@@ -215,7 +205,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player1 wins.")
+                    print("Illegal move, game over. Player1 wins.")
                     return "-4"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x,y), playerTurn.get_symbole())
@@ -227,7 +217,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player1 wins.")
+                    print("Illegal move, game over. Player1 wins.")
                     return "-4"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x, y), playerTurn.get_symbole())
@@ -266,7 +256,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, chr(playerTurn.get_symbole())):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player2 wins.")
+                    print("Illegal move, game over. Player2 wins.")
                     return "-3"
                 grid.update(x, y, chr(playerTurn.get_symbole()))
                 gui.drawSymbole(screen, (x, y), chr(playerTurn.get_symbole()))
@@ -287,7 +277,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player2 wins.")
+                    print("Illegal move, game over. Player2 wins.")
                     return "-3"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x,y), playerTurn.get_symbole())
@@ -300,7 +290,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player2 wins.")
+                    print("Illegal move, game over. Player2 wins.")
                     return "-3"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x,y), playerTurn.get_symbole())
@@ -312,7 +302,7 @@ def gameLoop(screen, p1, p2):
                 toc = time.time()
                 # Check if the cell is available
                 if not grid.isMoveAllowed(x, y, playerTurn.get_symbole()):
-                    print("Illegal move [", str(x), ",", str(y), "] game over. Player2 wins.")
+                    print("Illegal move, game over. Player2 wins.")
                     return "-3"
                 grid.update(x, y, playerTurn.get_symbole())
                 gui.drawSymbole(screen, (x, y), playerTurn.get_symbole())
@@ -433,3 +423,4 @@ if __name__ == "__main__":
         gui.clearScreen(screen)
     if p1_language =="JAVA" or p2_language=="JAVA":
         jpype.shutdownJVM()
+
