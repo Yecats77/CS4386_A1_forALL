@@ -38,7 +38,7 @@ class MCTS_Stacey(object):
     def run(self, state, avail_moves):
         START_TIME = time.time()
         while True:
-            if time.time() - START_TIME > self.time_limit - 2:
+            if time.time() - START_TIME > self.time_limit - 3:
                 break
             move, node = self.select(self.root, avail_moves) # move is a string formatted as '[x, y]'
             self.expand(node) 
