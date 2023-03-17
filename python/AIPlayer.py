@@ -17,7 +17,7 @@ class Node_Stacey(object):
         self.state = state
         self.player = player
         self.parent = parent
-        self.children = children # move: Node
+        self.children = children 
         self.success = 0
         self.total = 0
         self.move_str = None
@@ -105,21 +105,11 @@ class MCTS_Stacey(object):
         # oppo_score *= 0.01
 
         # backpropogate down to up
-        # while True:
-        #     # node.total += 1
-        #     node.total += max(my_score, oppo_score)
-        #     if node.player == self.player and my_score > oppo_score or node.player != self.player and my_score < oppo_score: 
-        #         # node.success += 1
-        #         node.success += max(my_score, oppo_score)
-        #     if node == self.root:
-        #         break
-        #     node = node.parent
-        
         while True:
             node.total += my_score + oppo_score
             if node.player == self.player:
                 node.success += my_score
-            elif:
+            else:
                 node.success += oppo_score
             if node == self.root:
                 break
@@ -134,10 +124,7 @@ class MCTS_Stacey(object):
         best_move = moves[0]
         if N > 0:
             for i in range(len(children)):
-                if N <= 2: # ===============================================================================================================================================
-                    u = -1
-                else:
-                    u = nodes[i].success / (nodes[i].total + 1) + constant * np.sqrt(np.log(N) / (nodes[i].total + 1))
+                u = nodes[i].success / (nodes[i].total + 1) + constant * np.sqrt(np.log(N) / (nodes[i].total + 1))
                 if u > best_u:
                     best_u = u
                     best_move = moves[i]
